@@ -1,0 +1,8 @@
+/*.tar.xz
+/aarch64-linux-gnu
+/i386-linux-gnu
+/mips-linux-gnu
+/arm-linux-gnueabihf
+/mips64el-linux-gnuabi64
+/powerpc64le-linux-gnu
+/x86_64-linux-gnu

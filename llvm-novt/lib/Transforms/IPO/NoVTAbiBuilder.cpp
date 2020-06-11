@@ -1236,6 +1236,8 @@ namespace {
                 }
               }
               const_struct->replaceAllUsesWith(ConstantStruct::get(const_struct->getType(), fields));
+            } else if (isa<ICmpInst>(user) && user->getOperand(1) == oldValue) {
+              user->setOperand(1, constantCast(newValue, user->getOperand(1)->getType()));
             } else {
               llvm::errs() << "[WARNING] cannot handle vtable / placeholder usage: " << *user << "\n";
               result = false;
@@ -1645,7 +1647,6 @@ namespace {
               }
 
               BasicBlock *createCaseBlock(DefClassIdent *ident, bool isRoot, BasicBlock *parentBlock) {
-                llvm::errs() << function->getName() << ": use " << *ident << "\n";
                 long offset;
                 if (ident->layout_cls) {
                   auto baseOffset = ident->layout_cls->getOffsetToBase(dst);
@@ -2125,12 +2126,12 @@ namespace {
 }
 
 PreservedAnalyses NoVTAbiBuilderPass::run(Module &M, ModuleAnalysisManager &MAM) {
-  llvm::errs() << "=== Build my C++ ABI ===\n";
+  llvm::errs() << "=== Build NoVT C++ ABI ===\n";
   return AbiBuilder(M).run() ? PreservedAnalyses::none() : PreservedAnalyses::all();
 }
 
 bool NoVTAbiBuilderLegacyPass::runOnModule(Module &M) {
-  llvm::errs() << "=== Build my C++ ABI (legacy) ===\n";
+  llvm::errs() << "=== Build NoVT C++ ABI ===\n";
   return AbiBuilder(M).run();
 }
 

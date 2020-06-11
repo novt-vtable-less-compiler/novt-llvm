@@ -1,0 +1,4 @@
+/build
+/tmp
+/novt-lib/*.a
+/novt-lib/include
