@@ -562,6 +562,8 @@ public:
   virtual void AddCXXStdlibLibArgs(const llvm::opt::ArgList &Args,
                                    llvm::opt::ArgStringList &CmdArgs) const;
 
+  void LinkInstrumentationLibrary(llvm::opt::ArgStringList &CmdArgs) const;
+
   /// AddFilePathLibArgs - Add each thing in getFilePaths() as a "-L" option.
   void AddFilePathLibArgs(const llvm::opt::ArgList &Args,
                           llvm::opt::ArgStringList &CmdArgs) const;

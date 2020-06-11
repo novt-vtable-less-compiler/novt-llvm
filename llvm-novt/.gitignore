@@ -82,3 +82,5 @@ docs/_build
 #==============================================================================#
 bindings/go/llvm/llvm_config.go
 bindings/go/llvm/workdir
+/cmake-build-minsizerel/
+/cmake-build-debug/

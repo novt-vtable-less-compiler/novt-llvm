@@ -178,6 +178,8 @@ public:
 
   static ItaniumMangleContext *create(ASTContext &Context,
                                       DiagnosticsEngine &Diags);
+
+  void mangleFunctionNameForInheritance(llvm::raw_ostream& stream, const FunctionDecl* decl, CXXDtorType dtor);
 };
 
 class MicrosoftMangleContext : public MangleContext {

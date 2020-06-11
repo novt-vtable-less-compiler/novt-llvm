@@ -14,6 +14,7 @@
 ///
 //===----------------------------------------------------------------------===//
 
+#include <llvm/Transforms/IPO/NoVTAbiBuilder.h>
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/ADT/StringSwitch.h"
 #include "llvm/Analysis/AliasAnalysis.h"
@@ -1158,6 +1159,9 @@ ModulePassManager
 PassBuilder::buildLTODefaultPipeline(OptimizationLevel Level, bool DebugLogging,
                                      ModuleSummaryIndex *ExportSummary) {
   ModulePassManager MPM(DebugLogging);
+
+  // PATCH inserted pass
+  MPM.addPass(NoVTAbiBuilderPass());
 
   if (Level == O0) {
     // The WPD and LowerTypeTest passes need to run at -O0 to lower type

@@ -538,6 +538,9 @@ void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     }
     CmdArgs.push_back("-lm");
   }
+
+  ToolChain.LinkInstrumentationLibrary(CmdArgs);
+
   // Silence warnings when linking C code with a C++ '-stdlib' argument.
   Args.ClaimAllArgs(options::OPT_stdlib_EQ);
 

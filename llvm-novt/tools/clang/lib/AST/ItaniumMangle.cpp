@@ -217,6 +217,7 @@ class CXXNameMangler {
   /// calculate ABI tags for the function return value or the variable type.
   /// Also it is required to avoid infinite recursion in some cases.
   bool DisableDerivedAbiTags = false;
+  bool DisableAllAbiTags = false;
 
   /// The "structor" is the top-level declaration being mangled, if
   /// that's not a template specialization; otherwise it's the pattern
@@ -415,6 +416,7 @@ public:
   raw_ostream &getStream() { return Out; }
 
   void disableDerivedAbiTags() { DisableDerivedAbiTags = true; }
+  void disableAllAbiTags() { DisableAllAbiTags = true; }
   static bool shouldHaveAbiTags(ItaniumMangleContextImpl &C, const VarDecl *VD);
 
   void mangle(const NamedDecl *D);
@@ -458,7 +460,7 @@ private:
                             const TemplateArgumentLoc *TemplateArgs,
                             unsigned NumTemplateArgs,
                             unsigned KnownArity = UnknownArity);
-
+public: // PATCH
   void mangleFunctionEncodingBareType(const FunctionDecl *FD);
 
   void mangleNameWithAbiTags(const NamedDecl *ND,
@@ -630,6 +632,8 @@ bool ItaniumMangleContextImpl::shouldMangleCXXName(const NamedDecl *D) {
 
 void CXXNameMangler::writeAbiTags(const NamedDecl *ND,
                                   const AbiTagList *AdditionalAbiTags) {
+  if (DisableAllAbiTags)
+    return;
   assert(AbiTags && "require AbiTagState");
   AbiTags->write(Out, ND, DisableDerivedAbiTags ? nullptr : AdditionalAbiTags);
 }
@@ -5170,4 +5174,26 @@ void ItaniumMangleContextImpl::mangleLambdaSig(const CXXRecordDecl *Lambda,
 ItaniumMangleContext *
 ItaniumMangleContext::create(ASTContext &Context, DiagnosticsEngine &Diags) {
   return new ItaniumMangleContextImpl(Context, Diags);
+}
+
+// ===== PATCH =====
+void ItaniumMangleContext::mangleFunctionNameForInheritance(llvm::raw_ostream& stream, const FunctionDecl* decl,
+        CXXDtorType dtor) {
+  const auto* destructor = dyn_cast<CXXDestructorDecl>(decl);
+  if (destructor) {
+    CXXNameMangler mangler(*dyn_cast<ItaniumMangleContextImpl>(this), stream, destructor, dtor);
+    mangler.disableDerivedAbiTags();
+    mangler.disableAllAbiTags();
+    mangler.mangleUnscopedName(decl, nullptr);
+    mangler.mangleFunctionEncodingBareType(decl);
+  } else {
+    auto method = dyn_cast<CXXMethodDecl>(decl);
+    CXXNameMangler mangler(*dyn_cast<ItaniumMangleContextImpl>(this), stream, decl);
+    mangler.disableDerivedAbiTags();
+    mangler.disableAllAbiTags();
+    if (method)
+      mangler.mangleQualifiers(method->getMethodQualifiers(), nullptr);
+    mangler.mangleUnscopedName(decl, nullptr);
+    mangler.mangleFunctionEncodingBareType(decl);
+  }
 }

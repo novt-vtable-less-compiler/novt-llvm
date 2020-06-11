@@ -516,6 +516,9 @@ private:
   }
   bool canCallMismatchedFunctionType() const override { return false; }
 };
+
+// MOD
+#include "NoVTCustomCXXABI.h"
 }
 
 CodeGen::CGCXXABI *CodeGen::CreateItaniumCXXABI(CodeGenModule &CGM) {
@@ -525,25 +528,30 @@ CodeGen::CGCXXABI *CodeGen::CreateItaniumCXXABI(CodeGenModule &CGM) {
   case TargetCXXABI::GenericARM:
   case TargetCXXABI::iOS:
   case TargetCXXABI::WatchOS:
+    return new NoVTCustomARMCXXABI(CGM);
     return new ARMCXXABI(CGM);
 
   case TargetCXXABI::iOS64:
+  llvm::report_fatal_error("iOS64");
     return new iOS64CXXABI(CGM);
 
   case TargetCXXABI::Fuchsia:
+  llvm::report_fatal_error("Fuchsia");
     return new FuchsiaCXXABI(CGM);
 
   // Note that AArch64 uses the generic ItaniumCXXABI class since it doesn't
   // include the other 32-bit ARM oddities: constructor/destructor return values
   // and array cookies.
   case TargetCXXABI::GenericAArch64:
-    return new ItaniumCXXABI(CGM, /*UseARMMethodPtrABI=*/true,
-                             /*UseARMGuardVarABI=*/true);
+    return new NoVTCustomCXXABI(CGM, /*UseARMMethodPtrABI=*/true, /*UseARMGuardVarABI=*/true);
+    return new ItaniumCXXABI(CGM, /*UseARMMethodPtrABI=*/true, /*UseARMGuardVarABI=*/true);
 
   case TargetCXXABI::GenericMIPS:
+    return new NoVTCustomCXXABI(CGM, /*UseARMMethodPtrABI=*/true);
     return new ItaniumCXXABI(CGM, /*UseARMMethodPtrABI=*/true);
 
   case TargetCXXABI::WebAssembly:
+    llvm::report_fatal_error("WebAssembly");
     return new WebAssemblyCXXABI(CGM);
 
   case TargetCXXABI::GenericItanium:
@@ -552,8 +560,11 @@ CodeGen::CGCXXABI *CodeGen::CreateItaniumCXXABI(CodeGenModule &CGM) {
       // For PNaCl, use ARM-style method pointers so that PNaCl code
       // does not assume anything about the alignment of function
       // pointers.
+      return new NoVTCustomCXXABI(CGM, /*UseARMMethodPtrABI=*/true);
       return new ItaniumCXXABI(CGM, /*UseARMMethodPtrABI=*/true);
     }
+    // MOD
+    return new NoVTCustomCXXABI(CGM);
     return new ItaniumCXXABI(CGM);
 
   case TargetCXXABI::Microsoft:

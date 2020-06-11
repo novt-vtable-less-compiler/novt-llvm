@@ -6,6 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#define BUILD_INSTRUMENTATION 0
+
 #include "clang/Driver/ToolChain.h"
 #include "InputInfo.h"
 #include "ToolChains/Arch/ARM.h"
@@ -519,7 +521,7 @@ std::string ToolChain::GetProgramPath(const char *Name) const {
 
 std::string ToolChain::GetLinkerPath() const {
   const Arg* A = Args.getLastArg(options::OPT_fuse_ld_EQ);
-  StringRef UseLinker = A ? A->getValue() : CLANG_DEFAULT_LINKER;
+  StringRef UseLinker = A ? A->getValue() : "lld"; // TODO PATCH CLANG_DEFAULT_LINKER;
 
   if (llvm::sys::path::is_absolute(UseLinker)) {
     // If we're passed what looks like an absolute path, don't attempt to
@@ -894,12 +896,43 @@ void ToolChain::AddCXXStdlibLibArgs(const ArgList &Args,
 
   switch (Type) {
   case ToolChain::CST_Libcxx:
+    if (!Args.hasArg(options::OPT_no_novt_libs)) {
+      if (Args.hasArgNoClaim(options::OPT__sysroot_EQ)) {
+        auto x = new std::string(std::string("-L") + Args.getLastArgNoClaim(options::OPT__sysroot_EQ)->getValue());
+        x->append("/novt-lib");
+        CmdArgs.insert(CmdArgs.begin(), x->c_str());
+      }
+      CmdArgs.push_back("-lc++abi");
+      CmdArgs.push_back("-lunwind");
+    }
     CmdArgs.push_back("-lc++");
     break;
 
   case ToolChain::CST_Libstdcxx:
+    if (!Args.hasArg(options::OPT_no_novt_libs)) {
+      if (Args.hasArgNoClaim(options::OPT__sysroot_EQ)) {
+        auto x = new std::string(std::string("-L") + Args.getLastArgNoClaim(options::OPT__sysroot_EQ)->getValue());
+        x->append("/novt-lib");
+        CmdArgs.insert(CmdArgs.begin(), x->c_str());
+      } else {
+        CmdArgs.insert(CmdArgs.begin(), "-L/usr/novt-lib");
+      }
+      CmdArgs.push_back("-lsupc++");
+    }
     CmdArgs.push_back("-lstdc++");
     break;
+  }
+}
+
+void ToolChain::LinkInstrumentationLibrary(ArgStringList &CmdArgs) const {
+  if (BUILD_INSTRUMENTATION) {
+    CmdArgs.push_back("-L/usr/novt-lib/instrumentation");
+    CmdArgs.push_back("-rpath=/usr/novt-lib/instrumentation");
+    if (BUILD_INSTRUMENTATION == 1) {
+      CmdArgs.push_back("-linstrument-lite");
+    } else if (BUILD_INSTRUMENTATION == 3) {
+      CmdArgs.push_back("-linstrument-lite2");
+    }
   }
 }
 

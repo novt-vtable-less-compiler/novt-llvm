@@ -389,9 +389,11 @@ void tools::AddGoldPlugin(const ToolChain &ToolChain, const ArgList &Args,
     if (A->getOption().matches(options::OPT_O4) ||
         A->getOption().matches(options::OPT_Ofast))
       OOpt = "3";
-    else if (A->getOption().matches(options::OPT_O))
+    else if (A->getOption().matches(options::OPT_O)) {
       OOpt = A->getValue();
-    else if (A->getOption().matches(options::OPT_O0))
+      if (OOpt == "s" || OOpt == "z")
+        OOpt = "2";
+    } else if (A->getOption().matches(options::OPT_O0))
       OOpt = "0";
     if (!OOpt.empty())
       CmdArgs.push_back(Args.MakeArgString(Twine("-plugin-opt=O") + OOpt));

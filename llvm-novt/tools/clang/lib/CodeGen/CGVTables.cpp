@@ -815,6 +815,7 @@ CodeGenVTables::GenerateConstructionVTable(const CXXRecordDecl *RD,
   CGM.setGVProperties(VTable, RD);
 
   CGM.EmitVTableTypeMetadata(RD, VTable, *VTLayout.get());
+  CGM.getCXXABI().onCreateConstructionVTable(VTable, RD, Base, BaseIsVirtual, VTLayout.get());
 
   return VTable;
 }

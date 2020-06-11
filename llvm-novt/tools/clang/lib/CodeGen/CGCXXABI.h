@@ -467,6 +467,12 @@ public:
   /// Gets the deleted virtual member call name.
   virtual StringRef GetDeletedVirtualCallName() = 0;
 
+  virtual void onCreateConstructionVTable(const llvm::GlobalVariable* VTable,
+                                          const CXXRecordDecl *RD,
+                                          const BaseSubobject &Base,
+                                          bool BaseIsVirtual,
+                                          const VTableLayout* layout){}
+
   /**************************** Array cookies ******************************/
 
   /// Returns the extra size required in order to store the array

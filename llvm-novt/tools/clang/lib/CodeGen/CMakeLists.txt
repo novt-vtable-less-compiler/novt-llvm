@@ -86,6 +86,7 @@ add_clang_library(clangCodeGen
   ConstantInitBuilder.cpp
   CoverageMappingGen.cpp
   ItaniumCXXABI.cpp
+        NoVTCustomCXXABI.h
   MacroPPCallbacks.cpp
   MicrosoftCXXABI.cpp
   ModuleBuilder.cpp
