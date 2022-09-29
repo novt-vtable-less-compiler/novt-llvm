@@ -7,10 +7,22 @@ NoVT extends Clang to perform a class hierarchy analysis on C++ source code.
 Instead of a vtable, each class gets unique identifier numbers which are used to dispatch the correct method implementation. 
 Thereby, NoVT inherently protects all usages of a vtable, not just virtual dispatch.
 
-The corresponding academic paper is currently under submission.
+The NoVT compiler is based on [LLVM 10, Clang 10 and LLD 10](https://releases.llvm.org/download.html). 
 It has been tested with SPEC CPU 2006 and Chromium, on Ubuntu 18.04 and Debian 10.
 
-The NoVT compiler is based on [LLVM 10, Clang 10 and LLD 10](https://releases.llvm.org/download.html). 
+NoVT was presented in the [IEEE EuroS&P 2021](https://www.ieee-security.org/TC/EuroSP2021/) paper ["NoVT: Eliminating C++ Virtual Calls to Mitigate Vtable Hijacking"](https://publications.cispa.saarland/3364/) by [Markus Bauer and Christian Rossow](https://cispa.saarland/group/rossow/). 
+
+```
+@inproceedings{Bauer2021NoVT,
+           title = {NoVT: Eliminating C++ Virtual Calls to Mitigate Vtable Hijacking},
+          author = {Markus Bauer and Christian Rossow},
+       publisher = {IEEE Computer Society},
+       booktitle = {2021 IEEE European Symposium on Security and Privacy (EuroS&P)},
+            year = {2021},
+             url = {https://publications.cispa.saarland/3364/},
+             doi = {10.1109/EuroSP51992.2021.00049}
+}
+```
 
 
 
